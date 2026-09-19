@@ -1,0 +1,574 @@
+{
+  "schemaVersion": 1,
+  "demo": true,
+  "source": "static-demo",
+  "notice": "演示注册表不代表任何厂商的真实支持能力；没有连接真实模型或用户数据库。",
+  "groups": [
+    {
+      "id": "antigravity",
+      "label": "Antigravity Tool",
+      "eyebrow": "MODEL GATEWAY · 示例分组",
+      "mark": "A",
+      "icon": "spark",
+      "pages": [
+        {
+          "id": "llm",
+          "label": "大模型配置",
+          "en": "Language models",
+          "kind": "chat",
+          "icon": "chat",
+          "description": "查看模型连接与返回能力。输入内容，即可在测试区查看对话结果。",
+          "configs": [
+            {
+              "id": "ag-chat-primary",
+              "label": "主对话模型",
+              "kind": "chat",
+              "model": "demo-text-primary",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "接口协议",
+                  "统一模型网关（示例）"
+                ],
+                [
+                  "接口地址",
+                  "https://gateway.example.invalid/v1"
+                ],
+                [
+                  "请求超时",
+                  "60 秒"
+                ],
+                [
+                  "输出上限",
+                  "4,096 tokens"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "stream",
+                  "complete"
+                ],
+                "formats": [
+                  "text",
+                  "json"
+                ],
+                "referenceImage": false
+              }
+            },
+            {
+              "id": "ag-chat-backup",
+              "label": "备用对话模型",
+              "kind": "chat",
+              "model": "demo-text-backup",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "接口协议",
+                  "统一模型网关（示例）"
+                ],
+                [
+                  "接口地址",
+                  "https://backup.example.invalid/v1"
+                ],
+                [
+                  "请求超时",
+                  "90 秒"
+                ],
+                [
+                  "输出上限",
+                  "8,192 tokens"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "stream",
+                  "complete"
+                ],
+                "formats": [
+                  "text",
+                  "json"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "image",
+          "label": "图片模型",
+          "en": "Image generation",
+          "kind": "image",
+          "icon": "image",
+          "description": "查看图片模型与输出规格。结果直接以图片展示，点击可放大。",
+          "configs": [
+            {
+              "id": "ag-image",
+              "label": "视觉生成模型",
+              "kind": "image",
+              "model": "demo-image-v1",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "接口协议",
+                  "图片适配器（示例）"
+                ],
+                [
+                  "接口地址",
+                  "https://gateway.example.invalid/images"
+                ],
+                [
+                  "默认尺寸",
+                  "1536 × 864（配置示例）"
+                ],
+                [
+                  "返回格式",
+                  "image/webp 或 image/png"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "complete"
+                ],
+                "formats": [
+                  "image"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "tts",
+          "label": "TTS 语音",
+          "en": "Text to speech",
+          "kind": "audio",
+          "icon": "audio",
+          "description": "输入要朗读的文本，在结果区直接试听语音，而不是查看一串文件地址。",
+          "configs": [
+            {
+              "id": "ag-tts",
+              "label": "文本转语音",
+              "kind": "audio",
+              "model": "demo-voice-v1",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "接口协议",
+                  "语音适配器（示例）"
+                ],
+                [
+                  "接口地址",
+                  "https://gateway.example.invalid/speech"
+                ],
+                [
+                  "默认音色",
+                  "跟随数据库配置"
+                ],
+                [
+                  "音频格式",
+                  "WAV / MP3（按实际能力）"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "complete"
+                ],
+                "formats": [
+                  "audio"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "video",
+          "label": "视频模型",
+          "en": "Video generation",
+          "kind": "video",
+          "icon": "video",
+          "description": "查看视频生成能力、任务状态与播放结果。无需跳转到外部页面。",
+          "configs": [
+            {
+              "id": "ag-video",
+              "label": "视频生成模型",
+              "kind": "video",
+              "model": "demo-video-v1",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "接口协议",
+                  "异步任务适配器（示例）"
+                ],
+                [
+                  "接口地址",
+                  "https://gateway.example.invalid/video"
+                ],
+                [
+                  "默认时长",
+                  "5 秒（配置示例）"
+                ],
+                [
+                  "默认画幅",
+                  "16:9"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "complete"
+                ],
+                "formats": [
+                  "video"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "grok",
+      "label": "Grok",
+      "eyebrow": "CUSTOM PROVIDER · 示例分组",
+      "mark": "G",
+      "icon": "orbit",
+      "pages": [
+        {
+          "id": "llm",
+          "label": "大模型配置",
+          "en": "Language models",
+          "kind": "chat",
+          "icon": "chat",
+          "description": "相同类型复用测试体验，具体字段、能力与端点由该分组配置决定。",
+          "configs": [
+            {
+              "id": "grok-chat",
+              "label": "Grok 对话入口（示例）",
+              "kind": "chat",
+              "model": "demo-grok-text",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "适配方式",
+                  "以实际部署的适配器为准"
+                ],
+                [
+                  "接口地址",
+                  "https://grok-gateway.example.invalid/v1"
+                ],
+                [
+                  "请求超时",
+                  "60 秒"
+                ],
+                [
+                  "能力来源",
+                  "演示注册表 · 未验证"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "stream",
+                  "complete"
+                ],
+                "formats": [
+                  "text",
+                  "json"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "image",
+          "label": "图片模型",
+          "en": "Image generation",
+          "kind": "image",
+          "icon": "image",
+          "description": "二级菜单按注册数据出现，不强制每个分组拥有完全相同的能力。",
+          "configs": [
+            {
+              "id": "grok-image",
+              "label": "Grok 图片入口（示例）",
+              "kind": "image",
+              "model": "demo-grok-image",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "适配方式",
+                  "以实际部署的适配器为准"
+                ],
+                [
+                  "接口地址",
+                  "https://grok-gateway.example.invalid/images"
+                ],
+                [
+                  "默认画幅",
+                  "16:9"
+                ],
+                [
+                  "能力来源",
+                  "演示注册表 · 未验证"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "complete"
+                ],
+                "formats": [
+                  "image"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "local",
+      "label": "本地服务",
+      "eyebrow": "LOCAL INFRASTRUCTURE",
+      "mark": "L",
+      "icon": "database",
+      "pages": [
+        {
+          "id": "postgres",
+          "label": "PostgreSQL",
+          "en": "Relational database",
+          "kind": "database",
+          "icon": "database",
+          "description": "只读展示连接信息。测试仅检查连接或执行受控的只读探针。",
+          "configs": [
+            {
+              "id": "local-pg",
+              "label": "应用数据库",
+              "kind": "database",
+              "model": "PostgreSQL · 示例连接",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "主机",
+                  "127.0.0.1"
+                ],
+                [
+                  "端口",
+                  "5432"
+                ],
+                [
+                  "数据库名称",
+                  "app_dev"
+                ],
+                [
+                  "连接账户",
+                  "read_only"
+                ],
+                [
+                  "传输加密",
+                  "以实际数据库策略为准"
+                ],
+                [
+                  "允许的测试",
+                  "连接检测 / SELECT 1"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "complete"
+                ],
+                "formats": [
+                  "database"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "redis",
+          "label": "Redis",
+          "en": "Cache service",
+          "kind": "database",
+          "icon": "layers",
+          "description": "缓存配置使用独立详情，不展示模型 ID、音色或图片尺寸。",
+          "configs": [
+            {
+              "id": "local-redis",
+              "label": "缓存服务",
+              "kind": "database",
+              "model": "Redis · 示例连接",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "主机",
+                  "127.0.0.1"
+                ],
+                [
+                  "端口",
+                  "6379"
+                ],
+                [
+                  "数据库索引",
+                  "0"
+                ],
+                [
+                  "连接超时",
+                  "5 秒"
+                ],
+                [
+                  "允许的测试",
+                  "PING"
+                ],
+                [
+                  "写入测试",
+                  "不开放"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "complete"
+                ],
+                "formats": [
+                  "database"
+                ],
+                "referenceImage": false
+              },
+              "probe": "PING"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "minio",
+      "label": "MinIO",
+      "eyebrow": "OBJECT STORAGE",
+      "mark": "M",
+      "icon": "box",
+      "pages": [
+        {
+          "id": "storage",
+          "label": "对象存储",
+          "en": "Storage connection",
+          "kind": "storage",
+          "icon": "box",
+          "description": "展示存储端点、桶与权限范围。测试结果使用对象列表，而不是模型对话框。",
+          "configs": [
+            {
+              "id": "minio-assets",
+              "label": "素材存储",
+              "kind": "storage",
+              "model": "S3-compatible · 示例连接",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "服务端点",
+                  "http://127.0.0.1:9000"
+                ],
+                [
+                  "Bucket",
+                  "media-demo"
+                ],
+                [
+                  "Region",
+                  "示例未指定"
+                ],
+                [
+                  "访问范围",
+                  "只读对象预览"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "complete"
+                ],
+                "formats": [
+                  "storage"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "preview",
+          "label": "媒体访问",
+          "en": "Media delivery",
+          "kind": "media",
+          "icon": "play",
+          "description": "测试媒体读取与预览。图片、音频、视频使用各自的查看组件。",
+          "configs": [
+            {
+              "id": "minio-preview",
+              "label": "媒体预览入口",
+              "kind": "media",
+              "model": "同源媒体代理（方案）",
+              "revision": "demo-r1",
+              "credentialState": "演示库未配置真实凭据",
+              "status": "unverified",
+              "properties": [
+                [
+                  "访问路径",
+                  "/api/media/:assetId"
+                ],
+                [
+                  "鉴权方式",
+                  "服务端会话 / 短期授权"
+                ],
+                [
+                  "地址失效",
+                  "由服务端重新签发"
+                ],
+                [
+                  "视频访问",
+                  "支持按需读取与拖动播放"
+                ]
+              ],
+              "capabilities": {
+                "verified": false,
+                "delivery": [
+                  "complete"
+                ],
+                "formats": [
+                  "media"
+                ],
+                "referenceImage": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

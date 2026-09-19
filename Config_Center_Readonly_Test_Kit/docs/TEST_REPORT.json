@@ -1,0 +1,16 @@
+{
+  "browser": "System Chromium headless; inline self-contained HTML because browser URL policy blocks navigation. SQLite HTTP APIs checked separately with urllib.",
+  "real_provider_tests": false,
+  "checks": [
+    "Catalog actually reads bundled SQLite via /api/catalog.",
+    "Four data-driven primary groups; configuration cards contain no editable controls.",
+    "Image preview, full-size modal, Escape focus, and per-config input/result retention work.",
+    "Embedded WAV fixture decodes and plays in Chromium; not a real TTS API response.",
+    "Embedded MP4 fixture decodes/plays; fullscreen workspace expands and restores.",
+    "Database and MinIO use dedicated details and result renderers, not LLM forms.",
+    "Failure state (#error), stop simulation, and escaped prompt rendering verified.",
+    "390px mobile layout and full-width test workspace checked without horizontal overflow.",
+    "Write APIs rejected; test API returns explicit 501; DB file inaccessible; video byte ranges verified."
+  ],
+  "page_errors": []
+}

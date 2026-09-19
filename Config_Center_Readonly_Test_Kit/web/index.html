@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>配置中心 · 只读展示与效果测试</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到配置详情</a>
+  <div class="ambient" aria-hidden="true"></div>
+  <header class="topbar">
+    <a href="#/antigravity/llm" class="brand" aria-label="配置中心首页"><span class="brand-icon">◈</span><span>配置中心<small>CONFIGURATION HUB</small></span></a>
+    <nav id="primary-nav" class="primary-nav" aria-label="一级配置分组"></nav>
+    <span class="readonly-top"><span class="dot"></span>只读视图</span>
+  </header>
+  <aside class="sidebar">
+    <div id="provider" class="provider"></div>
+    <div class="nav-label">配置目录</div>
+    <nav id="secondary-nav" aria-label="二级配置目录"></nav>
+    <div class="sidebar-foot"><div class="foot-orbit" aria-hidden="true">◈</div><strong>配置只读，效果可见。</strong><p>选择一项配置，<br>直接体验它的返回结果。</p><span>READ · TEST · PREVIEW</span></div>
+  </aside>
+  <main id="main" tabindex="-1">
+    <div class="source-strip"><span id="source-label"><span class="dot amber"></span>静态样例 · 未接真实服务</span><span>配置只读展示 · 测试不修改配置</span></div>
+    <div id="page-header"></div>
+    <div id="configs"></div>
+    <div class="bottom-note" id="bottom-note"></div>
+  </main>
+  <dialog id="test-dialog" class="test-dialog" aria-labelledby="test-title">
+    <header class="test-header"><div class="test-heading"><span class="mini-orbit" id="test-icon"></span><div><span class="eyebrow">LIVE PREVIEW WORKSPACE</span><h2 id="test-title">效果测试</h2></div></div><div class="window-actions"><span class="sample-badge">样例模式</span><button class="icon-button" id="expand-test" aria-label="展开为全屏" title="展开为全屏"></button><button class="icon-button" id="close-test" aria-label="收起测试区" title="收起测试区"></button></div></header>
+    <div class="test-context" id="test-context"></div>
+    <div class="test-body"><section class="test-input"><div class="section-label"><span>01</span>测试输入</div><div id="input-fields"></div><div class="test-input-foot"><p id="test-disclaimer"></p><button id="run-test" class="button primary"></button><button id="stop-test" class="button secondary" hidden>停止本次演示</button></div></section><section class="test-output"><div class="output-head"><div class="section-label"><span>02</span>返回结果</div><span id="run-status" role="status">等待输入</span></div><div id="result" class="result"></div></section></div>
+    <footer class="test-foot"><span>关闭面板不会清空本次页面内的输入与结果</span><span>Esc 收起</span></footer>
+  </dialog>
+  <dialog id="image-dialog" class="image-dialog" aria-label="图片大图预览"><div class="image-modal-top"><span>图片预览 · 本地样例素材</span><button id="close-image" class="icon-button" aria-label="关闭图片"></button></div><img id="large-image" alt="图片结果的放大预览" /></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script src="catalog-demo.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

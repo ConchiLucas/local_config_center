@@ -1,0 +1,9 @@
+data/artifacts/
+server/workbench
+.gocache/
+.gomodcache/
+.gopath/
+*.log
+.DS_Store
+.env
+/tmp/
