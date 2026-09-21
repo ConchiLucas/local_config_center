@@ -1,0 +1,11 @@
+.git
+.gocache
+.gomodcache
+.gopath
+data
+docs
+Config_Center_Readonly_Test_Kit
+server/workbench.log
+**/.DS_Store
+**/*.md
+!README.md

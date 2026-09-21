@@ -8,7 +8,28 @@
 
 ## 启动
 
-确保本机 `postgres16` 容器已启动，且存在 `shared_config` 库（与 Shared Config Center 相同）。
+确保本机 `postgres16` 容器已启动，且存在 `shared_config` 库（与 Shared Config Center 相同）。浏览器打开 <http://127.0.0.1:18527>。常驻网关和开发进程不要同时占用 18527。
+
+### 常驻（推荐）
+
+编排在 `/Users/conchi/docker-compose/config-center/`，和其它本机容器一样走 `dc.sh`：
+
+```sh
+make docker-bin
+cd /Users/conchi/docker-compose
+./dc.sh config-center build
+./dc.sh config-center up
+```
+
+容器名 `local-config-center`，映射 `18527:18527`，接入 `vibedeploy-shared`。改 Go 代码后同样先 `make docker-bin`，再 `build` + `up`。`dc.sh` 的 `up` 不会带 `--build`。
+
+### 开发
+
+```sh
+make run
+```
+
+或：
 
 ```sh
 cd server
@@ -19,26 +40,11 @@ ARTIFACT_DIR='../data/artifacts' \
 go run ./cmd/workbench
 ```
 
-或在仓库根目录执行 `make run`。浏览器打开 <http://127.0.0.1:18527>。
-
-默认把 `host.docker.internal` 映射到 `127.0.0.1`，把 `minio:9000` 映射到 `127.0.0.1:19100`，以便本进程跑在宿主机时能打到本地容器。若在 compose 网络内运行，设置 `HOST_SIDE_REWRITES=0`。
+宿主机进程默认把 `host.docker.internal` 映射到 `127.0.0.1`，把 `minio:9000` 映射到 `127.0.0.1:19100`。容器内已设置 `HOST_SIDE_REWRITES=0`，Postgres 走 `host.docker.internal:5432`，MinIO 走共享网上的 `minio:9000`。
 
 ## 内部网关
 
-本机项目可 `POST /v1/invoke`，JSON 里带 `auth` 即可，不传各厂商密钥。默认鉴权串是 `local-gateway`，可用环境变量 `GATEWAY_AUTH` 改掉。
-
-```sh
-curl -s http://127.0.0.1:18527/v1/invoke \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "auth": "local-gateway",
-    "kind": "chat",
-    "model": "antigravity/gemini-3.8-flash-high",
-    "input": {"messages":[{"role":"user","content":"只回复两个字：成功"}]}
-  }'
-```
-
-生图可带 `resolution`、`aspect`。模型清单：`GET /v1/models?auth=local-gateway`。音频/图片走 `/v1/media/{id}`。
+Go / Python / Java 如何调用见 [docs/ACCESS.md](docs/ACCESS.md)。给其它仓库里 AI 用的说明在用户 skill `local-llm-gateway`。
 
 ## 边界
 

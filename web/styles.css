@@ -22,6 +22,10 @@
 .test-input .combo-menu{z-index:40}
 .file-input{width:100%;padding:10px;border:1px dashed #26364b;border-radius:10px;background:#09121f;color:#cfdae6;font-size:12px}
 .file-name{margin:8px 0 0;font-size:11px;color:#8da2b7}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.gateway-chip{display:flex;align-items:center;gap:8px;font-size:11px;color:#8da2b7;white-space:nowrap}
+.gateway-chip code{color:var(--accent);font-size:11px}
+.gateway-copy{border:1px solid #26364b;background:rgba(255,255,255,.04);color:#cfdae6;border-radius:8px;padding:4px 8px;font-size:10px}
 .param-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px}
 .param-grid label{display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--quiet)}
 .param-grid select{min-height:38px;padding:8px 10px;background:#09121f;border:1px solid #26364b;border-radius:10px;color:#cfdae6;font-size:12px}

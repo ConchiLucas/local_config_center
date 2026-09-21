@@ -1,5 +1,6 @@
 data/artifacts/
 server/workbench
+server/bin/
 .gocache/
 .gomodcache/
 .gopath/

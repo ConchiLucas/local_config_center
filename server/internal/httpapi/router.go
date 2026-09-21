@@ -34,6 +34,7 @@ func New(loader configLoader, hub *testhub.Hub, webDir, gatewayAuth string) http
 	mux.HandleFunc("GET /healthz", s.health)
 	mux.HandleFunc("GET /readyz", s.ready)
 	mux.HandleFunc("GET /api/catalog", s.catalog)
+	mux.HandleFunc("GET /api/gateway-info", s.gatewayInfo)
 	mux.HandleFunc("GET /api/configs/{id}", s.config)
 	mux.HandleFunc("POST /api/test-runs", s.createRun)
 	mux.HandleFunc("GET /api/test-runs/{id}", s.getRun)
@@ -60,6 +61,20 @@ func (s *Server) ready(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 }
 
+func (s *Server) gatewayInfo(w http.ResponseWriter, r *http.Request) {
+	token := s.gatewayAuth
+	if token == "" {
+		token = "local-gateway"
+	}
+	writeJSON(w, http.StatusOK, map[string]string{
+		"auth":     token,
+		"field":    "auth",
+		"invoke":   "/v1/invoke",
+		"models":   "/v1/models",
+		"env":      "GATEWAY_AUTH",
+	})
+}
+
 func (s *Server) catalog(w http.ResponseWriter, r *http.Request) {
 	snapshot, err := s.loader.LoadSnapshot(r.Context())
 	if err != nil {
@@ -67,6 +82,7 @@ func (s *Server) catalog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cat := catalog.Project(snapshot, time.Now(), s.hub.Verifications())
+	cat = catalog.AttachGateway(cat, s.gatewayAuth)
 	writeJSON(w, http.StatusOK, cat)
 }
 
@@ -77,6 +93,7 @@ func (s *Server) config(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cat := catalog.Project(snapshot, time.Now(), s.hub.Verifications())
+	cat = catalog.AttachGateway(cat, s.gatewayAuth)
 	id := r.PathValue("id")
 	cfg, ok := catalog.FindConfig(cat, id)
 	if !ok {

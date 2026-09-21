@@ -27,15 +27,15 @@
     shield:'<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/>'
   };
   const icon = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.box}</svg>`;
-  const typeName = {chat:'对话',image:'图片',audio:'语音',transcribe:'听写',video:'视频',database:'连接',storage:'存储',media:'媒体',cli:'CLI'};
-  const typeIcon = {chat:'chat',image:'image',audio:'audio',transcribe:'audio',video:'video',database:'database',storage:'box',media:'play',cli:'layers'};
+  const typeName = {chat:'对话',image:'图片',audio:'语音',transcribe:'听写',video:'视频',database:'连接',storage:'存储',media:'媒体',cli:'CLI',gateway:'网关'};
+  const typeIcon = {chat:'chat',image:'image',audio:'audio',transcribe:'audio',video:'video',database:'database',storage:'box',media:'play',cli:'layers',gateway:'lock'};
   const modes = [
     {id:'stream',label:'流式返回',hint:'逐步展示文字',delivery:'stream',format:'text'},
     {id:'json',label:'JSON 返回',hint:'结构化结果',delivery:'complete',format:'json'},
     {id:'complete',label:'一次性返回',hint:'完整内容展示',delivery:'complete',format:'text'}
   ];
   const credLabel = {configured:'已配置',missing:'未配置',not_required:'不适用'};
-  const statusLabel = {unverified:'未实测',verified:'最近验证通过',stale:'旧版本结果',failed:'最近失败'};
+  const statusLabel = {unverified:'未实测',verified:'最近验证通过',stale:'旧版本结果',failed:'最近失败',gateway:'本机可见'};
 
   let catalog;
   let selectedGroup;
@@ -227,6 +227,8 @@
       body = '<h3>听写输出</h3>'+capabilityItem('file','上传音频，返回文字','调用 /v1/audio/transcriptions，结果直接阅读');
     } else if (c.kind === 'video') {
       body = '<h3>视频输出</h3><div class="ratio-preview">'+icon('play')+'<span>生成任务 → 直接播放</span></div>'+capabilityItem('video','封面 · 进度 · 全屏','生成状态与播放器状态分开');
+    } else if (c.kind === 'gateway') {
+      body = '<h3>内部调用</h3>'+capabilityItem('lock','JSON 里带 auth','和本页密钥简单比对，不验厂商 Key')+capabilityItem('file','POST /v1/invoke','model 用 vendor/slug，例如 aurora/auto');
     } else if (c.kind === 'database' || c.kind === 'cli') {
       body = '<h3>只读探针</h3><div class="connection-track"><span>本服务后端</span>'+icon('arrow')+'<span>目标</span></div>'+capabilityItem('shield','受控探针', c.probe || '不开放任意命令');
     } else {
@@ -252,10 +254,20 @@
         const picker = usesImagePicker(c) ? pickerHTML(c, s) : '';
         const modelRow = (usesModelCombo(c) || usesImagePicker(c)) ? `<div class="field-wide model-field"><dt>模型</dt><dd>${picker}${comboHTML(c, s.model)}</dd></div>` : '';
         const props = propertiesOf(c).filter(([k]) => k !== '已登记模型' && k !== '可选模型' && k !== '模型');
+        const propRows = props.map(([k,v]) => {
+          if (k === '鉴权密钥') {
+            return `<div><dt>${esc(k)}</dt><dd class="mono">${esc(v)} <button type="button" class="button secondary" data-copy="${esc(v)}">复制</button></dd></div>`;
+          }
+          return `<div><dt>${esc(k)}</dt><dd class="${/[a-zA-Z]{3}/.test(v)?'mono':''}">${esc(v)}</dd></div>`;
+        }).join('');
+        const action = c.kind==='gateway'
+          ? `<button type="button" class="button primary" data-copy="${esc((propertiesOf(c).find(([k])=>k==='鉴权密钥')||[])[1]||'')}">${icon('lock')}复制密钥</button>`
+          : `<button data-test="${esc(c.id)}" class="button primary">${icon('play')}${c.kind==='database'||c.kind==='cli'?'测试连接':'测试效果'}</button>`;
+        const subtitleText = c.kind==='gateway' ? 'JSON auth 字段 · 本机网关' : subtitle;
         return `
-        <article class="card"><header class="card-header"><span class="card-icon">${icon(typeIcon[c.kind]||'box')}</span><div class="card-title"><h2>${esc(c.title||c.label)}</h2><small>${esc(subtitle)}</small></div><span class="status-chip">${esc(statusLabel[c.status]||'未实测')}</span><button data-test="${esc(c.id)}" class="button primary">${icon('play')}${c.kind==='database'||c.kind==='cli'?'测试连接':'测试效果'}</button></header>
-        <div class="card-body"><section class="config-data"><div class="data-label">${icon('lock')}配置详情 · 只读</div><dl class="property-grid">${modelRow}${props.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd class="${/[a-zA-Z]{3}/.test(v)?'mono':''}">${esc(v)}</dd></div>`).join('')}</dl><div class="credential"><span>认证凭据</span><strong>${esc(credLabel[c.credentialState]||c.credentialState||'未说明')}</strong></div></section>${capabilityPane(c)}</div>
-        <footer class="card-bottom"><span>测试仅使用本次输入，不修改原始配置</span><span>${esc(c.id)} · ${esc(c.revision)}</span></footer></article>`;
+        <article class="card"><header class="card-header"><span class="card-icon">${icon(typeIcon[c.kind]||'box')}</span><div class="card-title"><h2>${esc(c.title||c.label)}</h2><small>${esc(subtitleText)}</small></div><span class="status-chip">${esc(statusLabel[c.status]||'未实测')}</span>${action}</header>
+        <div class="card-body"><section class="config-data"><div class="data-label">${icon('lock')}配置详情 · 只读</div><dl class="property-grid">${modelRow}${propRows}</dl><div class="credential"><span>认证凭据</span><strong>${esc(credLabel[c.credentialState]||c.credentialState||'未说明')}</strong></div></section>${capabilityPane(c)}</div>
+        <footer class="card-bottom"><span>${c.kind==='gateway'?'改密钥请设环境变量 GATEWAY_AUTH 后重启':'测试仅使用本次输入，不修改原始配置'}</span><span>${esc(c.id)} · ${esc(c.revision)}</span></footer></article>`;
       }).join('');
     }
     $('#bottom-note').textContent = '配置来自 shared_config 数据库的只读投影。密钥不会下发到浏览器。测试结果是后端实际调用返回，失败时保持失败，不会用演示素材顶替。';
@@ -605,6 +617,17 @@
   }
 
   document.addEventListener('click',event=>{
+    const copyBtn=event.target.closest('[data-copy]');
+    if(copyBtn){
+      event.preventDefault();
+      const text=copyBtn.getAttribute('data-copy')||'';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(()=>toast('已复制鉴权密钥')).catch(()=>toast(text));
+      } else {
+        toast(text);
+      }
+      return;
+    }
     const option=event.target.closest('.combo-option');
     if(option){
       event.preventDefault();
@@ -666,11 +689,47 @@
   });
   window.addEventListener('hashchange',()=>{ if(catalog) route(); });
 
+  function setGatewayAuth(token) {
+    const value = token || 'local-gateway';
+    const authEl = $('#gateway-auth');
+    const copyEl = $('#gateway-copy');
+    const strip = $('#source-gateway');
+    if (authEl) authEl.textContent = value;
+    if (copyEl) copyEl.setAttribute('data-copy', value);
+    if (strip) strip.textContent = '网关 auth · ' + value;
+  }
+
+  async function showGatewayAuth(cat) {
+    setGatewayAuth('local-gateway');
+    if (cat && cat.groups) {
+      for (const group of cat.groups) {
+        for (const page of group.pages || []) {
+          for (const cfg of page.configs || []) {
+            if (cfg.kind !== 'gateway') continue;
+            const props = propertiesOf(cfg);
+            const row = props.find(item => item[0] === '鉴权密钥');
+            if (row && row[1]) {
+              setGatewayAuth(row[1]);
+              return;
+            }
+          }
+        }
+      }
+    }
+    try {
+      const res = await fetch('/api/gateway-info', {cache:'no-store'});
+      if (!res.ok) return;
+      const info = await res.json();
+      if (info && info.auth) setGatewayAuth(info.auth);
+    } catch (_) {}
+  }
+
   async function init(){
     const res = await fetch('/api/catalog', {cache:'no-store'});
     if (!res.ok) throw new Error(await readError(res));
     catalog = await res.json();
     $('#source-label').innerHTML = `<span class="dot"></span>${esc(catalog.source||'postgres')} · 只读`;
+    await showGatewayAuth(catalog);
     if(!catalog.groups?.length){
       $('#main').insertAdjacentHTML('beforeend','<div class="empty-result"><strong>数据库中没有可展示的配置分组</strong><p>请通过已有配置管理流程登记后再刷新。本页不提供新增入口。</p></div>');
       return;

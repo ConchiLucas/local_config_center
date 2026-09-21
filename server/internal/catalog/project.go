@@ -147,6 +147,9 @@ func addConfig(group *Group, cfg PublicConfig) {
 }
 
 func pageForConfig(cfg PublicConfig) Page {
+	if cfg.Kind == "gateway" || cfg.PageID == "gateway" {
+		return Page{ID: "gateway", Label: "网关接入", En: "Local gateway", Kind: "gateway", Icon: "lock", Description: "给本机其它项目调用的 JSON 网关。鉴权密钥写在请求 JSON 的 auth 字段里，不使用各厂商 API Key。"}
+	}
 	if cfg.PageID == "voice" || cfg.Kind == "transcribe" {
 		return Page{ID: "voice", Label: "语音与听写", En: "Speech", Kind: "audio", Icon: "audio", Description: "测试文本转语音和语音识别。合成结果直接试听，转写结果直接阅读。"}
 	}

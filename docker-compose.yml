@@ -1,0 +1,36 @@
+services:
+  local-config-center:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: local-config-center:dev
+    pull_policy: never
+    container_name: local-config-center
+    restart: unless-stopped
+    ports:
+      - "18527:18527"
+    environment:
+      TZ: Asia/Shanghai
+      HTTP_ADDR: "0.0.0.0:18527"
+      DATABASE_URL: postgres://shared_config:shared_config_internal@host.docker.internal:5432/shared_config?sslmode=disable
+      HOST_SIDE_REWRITES: "0"
+      GATEWAY_AUTH: local-gateway
+      WEB_DIR: /app/web
+      ARTIFACT_DIR: /app/data/artifacts
+    volumes:
+      - ./data/artifacts:/app/data/artifacts
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:18527/readyz || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  default:
+    name: vibedeploy-shared
+    external: true

@@ -13,7 +13,10 @@
   <header class="topbar">
     <a href="#/" class="brand" aria-label="配置中心首页"><span class="brand-icon">◈</span><span>配置中心<small>CONFIGURATION HUB</small></span></a>
     <nav id="primary-nav" class="primary-nav" aria-label="一级配置分组"></nav>
-    <span class="readonly-top"><span class="dot"></span>只读视图</span>
+    <div class="topbar-right">
+      <span class="readonly-top"><span class="dot"></span>只读视图</span>
+      <span class="gateway-chip" id="gateway-chip" title="内部网关 JSON 鉴权密钥">网关密钥 <code id="gateway-auth">local-gateway</code><button type="button" class="gateway-copy" id="gateway-copy" data-copy="local-gateway">复制</button></span>
+    </div>
   </header>
   <aside class="sidebar">
     <div id="provider" class="provider"></div>
@@ -22,7 +25,7 @@
     <div class="sidebar-foot"><div class="foot-orbit" aria-hidden="true">◈</div><strong>配置只读，效果可见。</strong><p>选择一项配置，<br>直接体验它的返回结果。</p><span>READ · TEST · PREVIEW</span></div>
   </aside>
   <main id="main" tabindex="-1">
-    <div class="source-strip"><span id="source-label"><span class="dot amber"></span>正在读取配置数据库</span><span>配置只读展示 · 测试不修改配置</span></div>
+    <div class="source-strip"><span id="source-label"><span class="dot amber"></span>正在读取配置数据库</span><span id="source-gateway">网关 auth · local-gateway</span><span>配置只读展示 · 测试不修改配置</span></div>
     <div id="page-header"></div>
     <div id="configs"></div>
     <div class="bottom-note" id="bottom-note"></div>

@@ -210,6 +210,27 @@ func TestAuroraDropdownIncludesPublishedCatalog(t *testing.T) {
 	}
 }
 
+func TestAttachGatewayShowsTokenOnLocalPage(t *testing.T) {
+	cat := Catalog{Groups: nil}
+	cat = AttachGateway(cat, "local-gateway")
+	cfg, ok := FindConfig(cat, "gateway:local")
+	if !ok {
+		t.Fatal("missing gateway config")
+	}
+	if cfg.Kind != "gateway" {
+		t.Fatalf("kind = %s", cfg.Kind)
+	}
+	found := false
+	for _, item := range cfg.PublicProperties {
+		if item.Label == "鉴权密钥" && item.Value == "local-gateway" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("token not visible: %#v", cfg.PublicProperties)
+	}
+}
+
 func TestGrokDropdownAndSubmenus(t *testing.T) {
 	snapshot := config.Snapshot{
 		AI: config.AIConfiguration{
