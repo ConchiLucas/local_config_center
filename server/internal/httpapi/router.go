@@ -13,14 +13,17 @@ import (
 
 	"local_config_center/internal/catalog"
 	"local_config_center/internal/config"
+	"local_config_center/internal/imagejobs"
 	"local_config_center/internal/testhub"
 )
 
 type Server struct {
-	loader      configLoader
-	hub         *testhub.Hub
-	webDir      string
-	gatewayAuth string
+	loader           configLoader
+	hub              *testhub.Hub
+	webDir           string
+	gatewayAuth      string
+	imageJobs        *imagejobs.Store
+	imageRealEnabled bool
 }
 
 type configLoader interface {
@@ -29,7 +32,11 @@ type configLoader interface {
 }
 
 func New(loader configLoader, hub *testhub.Hub, webDir, gatewayAuth string) http.Handler {
-	s := &Server{loader: loader, hub: hub, webDir: webDir, gatewayAuth: gatewayAuth}
+	return NewWithImageJobs(loader, hub, webDir, gatewayAuth, nil, false)
+}
+
+func NewWithImageJobs(loader configLoader, hub *testhub.Hub, webDir, gatewayAuth string, jobs *imagejobs.Store, realEnabled bool) http.Handler {
+	s := &Server{loader: loader, hub: hub, webDir: webDir, gatewayAuth: gatewayAuth, imageJobs: jobs, imageRealEnabled: realEnabled}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", s.health)
 	mux.HandleFunc("GET /readyz", s.ready)
@@ -42,6 +49,22 @@ func New(loader configLoader, hub *testhub.Hub, webDir, gatewayAuth string) http
 	mux.HandleFunc("POST /api/test-runs/{id}/cancel", s.cancel)
 	mux.HandleFunc("GET /api/media/{id}", s.media)
 	mux.HandleFunc("POST /v1/invoke", s.invoke)
+	mux.HandleFunc("GET /v1/image-jobs/capabilities", s.imageCapabilities)
+	mux.HandleFunc("POST /v1/image-jobs", s.imageJob)
+	mux.HandleFunc("GET /v1/image-jobs/{id}", s.imageJob)
+	mux.HandleFunc("GET /v1/image-jobs/{first}/{second}", func(w http.ResponseWriter, r *http.Request) {
+		if r.PathValue("first") == "by-key" {
+			r.SetPathValue("key", r.PathValue("second"))
+		} else if r.PathValue("second") == "image" {
+			r.SetPathValue("id", r.PathValue("first"))
+		} else {
+			if s.imageJobAuth(w, r) {
+				http.NotFound(w, r)
+			}
+			return
+		}
+		s.imageJob(w, r)
+	})
 	mux.HandleFunc("GET /v1/models", s.gatewayModels)
 	mux.HandleFunc("POST /v1/models", s.gatewayModels)
 	mux.HandleFunc("GET /v1/media/{id}", s.media)
@@ -67,11 +90,11 @@ func (s *Server) gatewayInfo(w http.ResponseWriter, r *http.Request) {
 		token = "local-gateway"
 	}
 	writeJSON(w, http.StatusOK, map[string]string{
-		"auth":     token,
-		"field":    "auth",
-		"invoke":   "/v1/invoke",
-		"models":   "/v1/models",
-		"env":      "GATEWAY_AUTH",
+		"auth":   token,
+		"field":  "auth",
+		"invoke": "/v1/invoke",
+		"models": "/v1/models",
+		"env":    "GATEWAY_AUTH",
 	})
 }
 

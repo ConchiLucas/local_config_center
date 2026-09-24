@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"local_config_center/internal/catalog"
 	"local_config_center/internal/config"
@@ -19,14 +20,14 @@ type Loader interface {
 }
 
 type Hub struct {
-	loader     Loader
-	artifacts  *ArtifactStore
-	rewriter   rewrite.HostSide
-	mu         sync.Mutex
-	runs       map[string]*liveRun
-	byIdem     map[string]string
-	verified   map[string]catalog.Verification
-	httpLong   *httpClientSet
+	loader    Loader
+	artifacts *ArtifactStore
+	rewriter  rewrite.HostSide
+	mu        sync.Mutex
+	runs      map[string]*liveRun
+	byIdem    map[string]string
+	verified  map[string]catalog.Verification
+	httpLong  *httpClientSet
 }
 
 type httpClientSet struct {
@@ -393,7 +394,7 @@ func validateInput(binding Binding, req CreateTestRequest) error {
 		if trim(in.Prompt) == "" {
 			return APIError{Status: 400, Code: "INVALID_INPUT", Message: "请输入提示文本"}
 		}
-		if len(in.Prompt) > 4000 {
+		if (kind == "image" && utf8.RuneCountInString(in.Prompt) > 20000) || (kind == "video" && len(in.Prompt) > 4000) {
 			return APIError{Status: 400, Code: "INVALID_INPUT", Message: "提示文本过长"}
 		}
 	case "audio":

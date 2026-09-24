@@ -137,3 +137,37 @@ var request = HttpRequest.newBuilder()
     .build();
 var response = client.send(request, HttpResponse.BodyHandlers.ofString());
 ```
+
+## 持久化异步生图任务（Batch Worker）
+
+新增接口全部要求 `Authorization: Bearer <网关密钥>`，包括查询与图片下载。不要把密钥放进 URL、任务记录或前端。旧 `/v1/invoke` 合同保持不变。
+
+| 方法 | 路径 | 作用 |
+|---|---|---|
+| GET | `/v1/image-jobs/capabilities` | 免费确认鉴权及协议，返回 `{version:1,real_enabled:false,parameters:"configured_defaults"}` |
+| POST | `/v1/image-jobs` | 接受并持久化任务，HTTP 202 |
+| GET | `/v1/image-jobs/{id}` | 查询任务 |
+| GET | `/v1/image-jobs/by-key/{key}` | 按 URL 编码的幂等键恢复查询 |
+| GET | `/v1/image-jobs/{id}/image` | 下载成功任务的持久化图片；仍要求 Bearer 鉴权 |
+
+提交必须带 `Idempotency-Key`（非空，最多 200 字节），请求体：
+
+```json
+{"model":"mock/image","prompt":"深海蓝控制台","parameters":{}}
+```
+
+`parameters` 必须是空对象；当前只使用网关已配置的默认参数，不支持尺寸覆盖。提示词最多 20000 个 Unicode 字符；请求体最多 128 KiB。持久化图片只支持 PNG / JPEG / WebP，最多 20 MiB。同键同内容返回同一个任务；不同内容返回 409。提交连接失败时，先按原键查询或使用**同键同内容**重新提交，不能自行换键调用。
+
+```json
+{"job":{"id":"job-...","model":"mock/image","state":"succeeded","result":{"path":"/v1/image-jobs/job-.../image","media_type":"image/png"},"billed_amount":"0"}}
+```
+
+状态为 `queued` / `running` / `succeeded` / `failed` / `unknown`。错误结构为 `{code,message,outcome_known,retryable}`。`unknown` 表示上游结果或计费无法确认，**不得自动重试**。真实调用的 `billed_amount` 永远是 `null`（尚无可靠计费来源），只有本地 `mock/image` 是字符串 `"0"`。Mock 按提示词生成确定性 PNG，不调用供应商。
+
+真实新接口默认关闭。管理员明确启用 `GATEWAY_IMAGE_REAL_ENABLED=true` 并重启后，才可提交来自现有 `/v1/models` 的完整 image 模型 slug。该开关只影响新的任务接口，不改变原 `/v1/invoke`。鉴权成功、模型可见或凭据存在都不代表授权付费生图。
+
+任务、幂等键、状态与图片 bytes 存于当前 `DATABASE_URL` 指向的 PostgreSQL 的独立 `image_jobs.jobs` 表，不写 `config_documents`。数据库角色需能创建 `image_jobs` schema / 表并读写自身对象。备份应包含该 schema。图片和成功状态在同一次数据库更新中提交，重启后不依赖旧内存媒体索引。当前不自动清理任务或幂等键；不要独立删除仍需恢复的记录。
+
+每个数据库通过专用会话 advisory lock 只允许一个新任务执行器；第二个实例启动失败。不要经事务池模式的 PgBouncer 连接这个执行器（需要稳定 PostgreSQL 会话）。连接丢失时执行器停止服务，不能在未持锁的新连接上继续执行。新实例恢复时，已 `running` 任务统一转为 `unknown` 且不会重发；`queued` 任务继续执行，完成写入还会核对 owner，防止旧实例覆盖恢复状态。
+
+测试使用**专用可丢弃数据库**：设置 `IMAGE_JOBS_TEST_DATABASE_URL` 后从 `server` 目录运行 `go test -race ./...`。集成测试会清空该测试数据库的 `image_jobs.jobs`，不可指向正式配置中心数据库。测试只调用 Mock，不触发付费供应商。
