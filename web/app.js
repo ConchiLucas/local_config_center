@@ -404,7 +404,7 @@
   function renderOutputs(c,s) {
     const blocks = s.outputs || [];
     if (!blocks.length && (s.status==='running'||s.status==='submitting')) {
-      return `<div class="loader-wrap"><span class="spinner" aria-hidden="true"></span>${esc(s.run?.stageLabel||'正在调用已登记服务')}<p>不会插入虚构百分比，也不会用本地样例顶替。</p></div>`;
+      return `<div class="loader-wrap"><span class="spinner" aria-hidden="true"></span><span data-loader-label>${esc(s.run?.stageLabel||'正在调用已登记服务')}</span><p>不会插入虚构百分比，也不会用本地样例顶替。</p></div>`;
     }
     return blocks.map(block => renderBlock(c,s,block)).join('');
   }
@@ -412,7 +412,7 @@
   function renderBlock(c,s,block) {
     if (block.kind==='text') {
       const streaming = s.status==='running' && !block.complete;
-      return `<div class="message assistant"><span class="message-label">模型返回</span><span class="${streaming?'stream-cursor':''}">${esc(block.text||'')}</span></div>`;
+      return `<div class="message assistant" data-output-id="${esc(block.id)}"><span class="message-label">模型返回</span><span data-output-text class="${streaming?'stream-cursor':''}">${esc(block.text||'')}</span></div>`;
     }
     if (block.kind==='json') {
       let parsed = block.parsed;
@@ -452,6 +452,7 @@
   function renderResult() {
     if(!activeConfig) return;
     const c=activeConfig,s=getSession(c),target=$('#result');
+    const followOutput = target.scrollHeight-target.scrollTop-target.clientHeight < 80;
     syncRunning();
     if(s.status==='idle'){target.innerHTML=emptyHtml(c);return;}
     if(s.status==='error' && !s.outputs.length){
@@ -477,7 +478,41 @@
     }
     target.innerHTML = html || emptyHtml(c);
     mediaErrorHook(target);
-    if (s.status==='running') target.scrollTop = target.scrollHeight;
+    if (s.status==='running' && followOutput) target.scrollTop = target.scrollHeight;
+  }
+
+  function scheduleLivePatch(s,event) {
+    if (!s.livePatch) s.livePatch={status:false,blockIds:new Set()};
+    if (event.type==='status') s.livePatch.status=true;
+    if (event.type==='text_delta' && event.blockId) s.livePatch.blockIds.add(event.blockId);
+    if (s.liveFrame) return;
+    s.liveFrame=requestAnimationFrame(()=>{
+      s.liveFrame=null;
+      const pending=s.livePatch;
+      s.livePatch={status:false,blockIds:new Set()};
+      if (!activeConfig || getSession(activeConfig)!==s) return;
+      const target=$('#result');
+      const followOutput = target.scrollHeight-target.scrollTop-target.clientHeight < 80;
+      syncRunning();
+      if (pending.status) {
+        const label=target.querySelector('[data-loader-label]');
+        if (label) label.textContent=s.run?.stageLabel||'正在调用已登记服务';
+      }
+      let needsFullRender=false;
+      for (const blockId of pending.blockIds) {
+        const block=s.outputs.find(item=>item.id===blockId);
+        const wrapper=Array.from(target.querySelectorAll('[data-output-id]')).find(el=>el.dataset.outputId===blockId);
+        const textNode=wrapper?.querySelector('[data-output-text]');
+        if (!block || !textNode) { needsFullRender=true; break; }
+        textNode.textContent=block.text||'';
+        textNode.classList.toggle('stream-cursor',s.status==='running'&&!block.complete);
+      }
+      if (needsFullRender) {
+        renderResult();
+      } else if (s.status==='running' && followOutput) {
+        target.scrollTop=target.scrollHeight;
+      }
+    });
   }
 
   function applyEvent(c,s,event) {
@@ -528,7 +563,10 @@
         let event;
         try { event = JSON.parse(dataLine.slice(5).trim()); } catch { continue; }
         applyEvent(activeConfig && activeConfig.id===s.configId ? activeConfig : {id:s.configId}, s, event);
-        if (activeConfig && getSession(activeConfig)===s) renderResult();
+        if (activeConfig && getSession(activeConfig)===s) {
+          if (event.type==='status'||event.type==='text_delta') scheduleLivePatch(s,event);
+          else renderResult();
+        }
       }
     }
   }
