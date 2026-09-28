@@ -57,6 +57,16 @@ func (h HostSide) ApplyHostPort(host string, port int) (string, int) {
 	switch strings.ToLower(strings.TrimSpace(host)) {
 	case "host.docker.internal":
 		return "127.0.0.1", port
+	case "grok2api":
+		if port == 0 || port == 8000 {
+			return "127.0.0.1", 37821
+		}
+		return "127.0.0.1", port
+	case "sub2api":
+		if port == 0 || port == 8090 {
+			return "127.0.0.1", 8090
+		}
+		return "127.0.0.1", port
 	case "minio":
 		if port == 0 || port == 9000 {
 			return "127.0.0.1", 19100

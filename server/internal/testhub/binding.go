@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultSub2APIBaseURL = "http://127.0.0.1:8090/v1"
+	DefaultSub2APIBaseURL = "http://sub2api:8090/v1"
 	DefaultSub2APIAPIKey  = "sk-0ef4b56f19a410eb32a2f3f1a536d6f065499e33122c37e4de309de6d56815e2"
 )
 

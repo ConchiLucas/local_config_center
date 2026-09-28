@@ -40,7 +40,7 @@ ARTIFACT_DIR='../data/artifacts' \
 go run ./cmd/workbench
 ```
 
-宿主机进程默认把 `host.docker.internal` 映射到 `127.0.0.1`，把 `minio:9000` 映射到 `127.0.0.1:19100`。容器内已设置 `HOST_SIDE_REWRITES=0`，Postgres 走 `host.docker.internal:5432`，MinIO 走共享网上的 `minio:9000`。
+宿主机进程默认把 `host.docker.internal` 映射到 `127.0.0.1`，把 `grok2api:8000`、`sub2api:8090` 和 `minio:9000` 分别映射到宿主机的 `127.0.0.1:37821`、`127.0.0.1:8090` 和 `127.0.0.1:19100`。容器内已设置 `HOST_SIDE_REWRITES=0`，Postgres 走 `host.docker.internal:5432`，Grok2API、Sub2API 和 MinIO 直接走 `vibedeploy-shared` 共享网络上的容器服务名。
 
 ## 内部网关
 

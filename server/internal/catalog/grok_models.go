@@ -151,7 +151,7 @@ func applyGrokEndpointDefaults(cfg PublicConfig, kind string) PublicConfig {
 			{Label: "接口路径", Value: "/v1/tts"},
 			{Label: "默认音色", Value: "Ara"},
 			{Label: "接口协议", Value: "OpenAI 兼容协议 (Sub2API)"},
-			{Label: "接口地址", Value: "http://127.0.0.1:8090/v1"},
+			{Label: "接口地址", Value: "http://sub2api:8090/v1"},
 		}, cfg.PublicProperties...)
 	case "image":
 		cfg.Title = "Grok · 生成图片"
@@ -167,7 +167,7 @@ func applyGrokEndpointDefaults(cfg PublicConfig, kind string) PublicConfig {
 		}, cfg.PublicProperties...)
 	case "chat":
 		cfg.Title = "Grok · Chat 大模型"
-		cfg.Model = "grok-4.20-0309-reasoning"
+		cfg.Model = "grok-chat-auto"
 		cfg.PageID = "chat"
 		cfg.Models = mergeKnownGrokModels("chat", GrokKnownChatModels, cfg.Models)
 		cfg.Capabilities.Delivery = []string{"stream", "complete"}

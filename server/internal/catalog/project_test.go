@@ -309,7 +309,7 @@ func TestGrokDropdownAndSubmenus(t *testing.T) {
 
 	// 验证 Chat 大模型配置与全部模型
 	chatCfg, ok := FindConfig(cat, "ai:grok:chat")
-	if !ok || chatCfg.Kind != "chat" || chatCfg.Model != "grok-4.20-0309-reasoning" {
+	if !ok || chatCfg.Kind != "chat" || chatCfg.Model != "grok-chat-auto" {
 		t.Fatalf("grok chat config = %#v", chatCfg)
 	}
 	if len(chatCfg.Models) < 15 {
