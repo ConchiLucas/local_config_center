@@ -28,7 +28,7 @@ type Settings struct {
 func SettingsFromEnvironment() (Settings, error) {
 	databaseURL := strings.TrimSpace(os.Getenv("DATABASE_URL"))
 	if databaseURL == "" {
-		databaseURL = "postgres://shared_config:shared_config_internal@127.0.0.1:5432/shared_config?sslmode=disable"
+		return Settings{}, fmt.Errorf("DATABASE_URL is required")
 	}
 	address := strings.TrimSpace(os.Getenv("HTTP_ADDR"))
 	if address == "" {

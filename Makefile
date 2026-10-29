@@ -1,6 +1,7 @@
 .PHONY: test run docker-bin
 
-DATABASE_URL ?= postgres://shared_config:shared_config_internal@127.0.0.1:5432/shared_config?sslmode=disable
+-include .env
+export DATABASE_URL
 HTTP_ADDR ?= 127.0.0.1:18527
 GOOS_DOCKER ?= linux
 GOARCH_DOCKER ?= arm64
